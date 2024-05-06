@@ -5,6 +5,7 @@ const Question = ({ question, answer, dispatch }) => {
   const hasAnswered = answer !== null;
   return (
     <div className='options'>
+      <h4>{question.question}</h4>
       {question.options.map((option, index) => (
         <button
           disabled={hasAnswered}
