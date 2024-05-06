@@ -85,7 +85,7 @@ function App() {
   // fetch questions
   useEffect(() => {
     const getData = async () => {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 4000));
       try {
         const data = await fetch('/data.json');
         const res = await data.json();
