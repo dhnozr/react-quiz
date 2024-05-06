@@ -1,8 +1,12 @@
 import { useEffect, useReducer, useState } from 'react';
+import Header from './components/Header';
+import Main from './components/Main';
+import Loader from './components/Loader';
+import Error from './components/Error';
 
 const initialState = {
   questions: [],
-  // loading, ready,finished gibi durumlari yonetecegim
+  // loading, ready,finished,error gibi durumlari yonetecegim
   status: 'loading',
 };
 
@@ -11,14 +15,15 @@ function App() {
   const reducer = (state, action) => {
     switch (action.type) {
       case 'dataReceived':
-        return { ...state, questions: action.payload };
+        return { ...state, questions: action.payload, status: 'ready' };
         break;
-
+      case 'dataFailed':
+        return { ...state, status: 'error' };
       default:
         break;
     }
   };
-  const [{ questions }, dispatch] = useReducer(reducer, initialState);
+  const [{ questions, status }, dispatch] = useReducer(reducer, initialState);
 
   console.log(questions);
 
@@ -36,7 +41,17 @@ function App() {
 
     getData();
   }, []);
-  return <></>;
+  return (
+    <>
+      <div className='app'>
+        <Header />
+        <Main>
+          {status === 'loading' && <Loader />}
+          {status === 'error' && <Error />}
+        </Main>
+      </div>
+    </>
+  );
 }
 
 export default App;
