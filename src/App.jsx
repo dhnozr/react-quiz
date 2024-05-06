@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 import Header from './components/Header';
 import Main from './components/Main';
 import Loader from './components/Loader';
@@ -8,6 +8,7 @@ import Question from './components/Question';
 import NextButton from './components/NextButton';
 import Progress from './components/Progress';
 import FinishScreen from './components/FinishScreen';
+import Timer from './components/Timer';
 
 const initialState = {
   questions: [],
@@ -21,6 +22,8 @@ const initialState = {
   points: 0,
   // keep max score of user
   maxPoint: 0,
+  // keep track of time
+  secondsRemaining: null,
 };
 
 function App() {
@@ -34,7 +37,7 @@ function App() {
         return { ...state, status: 'error' };
         break;
       case 'start':
-        return { ...state, status: 'active' };
+        return { ...state, status: 'active', secondsRemaining: state.questions.length * 15 };
         break;
       case 'answer':
         const correctAnswer = state.questions[state.index].correctOption;
@@ -55,13 +58,24 @@ function App() {
           maxPoint: state.points > state.maxPoint ? state.points : state.maxPoint,
         };
         break;
+      case 'tick':
+        return {
+          ...state,
+          secondsRemaining: state.secondsRemaining - 1,
+          status: state.secondsRemaining === 0 ? 'finished' : state.status,
+          maxPoint: state.secondsRemaining === 0 ? Math.max(state.points, state.maxPoint) : state.maxPoint,
+        };
+        break;
       case 'restart':
         return { ...initialState, questions: state.questions, status: 'ready', maxPoint: state.maxPoint };
       default:
         break;
     }
   };
-  const [{ questions, status, index, answer, points, maxPoint }, dispatch] = useReducer(reducer, initialState);
+  const [{ questions, status, index, answer, points, maxPoint, secondsRemaining }, dispatch] = useReducer(
+    reducer,
+    initialState
+  );
 
   // take how many questions in the array
   const numOfQuestions = questions.length;
@@ -71,6 +85,7 @@ function App() {
   // fetch questions
   useEffect(() => {
     const getData = async () => {
+      await new Promise(resolve => setTimeout(resolve, 2000));
       try {
         const data = await fetch('/data.json');
         const res = await data.json();
@@ -99,6 +114,7 @@ function App() {
                 points={points}
               />
               <Question question={questions[index]} answer={answer} dispatch={dispatch} />
+              <Timer secondsRemaining={secondsRemaining} dispatch={dispatch} />
               <NextButton dispatch={dispatch} numOfQuestions={numOfQuestions} index={index} />
             </>
           )}
