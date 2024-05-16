@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, useContext, useEffect, useReducer } from 'react';
 
 // First create a context
 const QuizContext = createContext();
@@ -103,9 +103,19 @@ function QuizContextProvider({ children }) {
         maxPoint,
         secondsRemaining,
         numOfQuestions,
+        dispatch,
+        maxPossiblePoint,
       }}
     >
       {children}
     </QuizContext.Provider>
   );
 }
+
+function useQuiz() {
+  const context = useContext(QuizContext);
+  if (context === undefined) throw new Error('context used outside');
+  return context;
+}
+
+export { useQuiz, QuizContextProvider };
